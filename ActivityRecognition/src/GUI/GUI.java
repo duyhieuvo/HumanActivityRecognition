@@ -73,6 +73,7 @@ public class GUI extends JFrame implements MessageBox{
 	//boolean login, signup
 	static boolean login = false, signup = false, logout = false, edit = false;
 	static boolean editrequest = false;
+	
 	 
 	//number of fields (JTextField) will be checked
 	private int fieldCheck; 
@@ -90,6 +91,8 @@ public class GUI extends JFrame implements MessageBox{
 	
 	private mySwingWorker worker;
 	private boolean running =true;
+	
+	private int abortCounter = 0;
 	
 	private void Initialize() {
 		alert = new GenerateAlert(this);
@@ -174,6 +177,8 @@ public class GUI extends JFrame implements MessageBox{
 				btnLogin.setVisible(true);
 				btnSendEmail.setEnabled(false);
 				btnSendEmail.setVisible(false);
+				
+				
 				
 				btnStart.setEnabled(false);
 				btnStart.setVisible(false);
@@ -461,6 +466,8 @@ public class GUI extends JFrame implements MessageBox{
 			setVisible(signUpField, true);
 			setEnabled(signUpField, true);
 			setVisible(signUpLabel, true);
+			
+
 			
 			btnEdit.setEnabled(true);
 			btnStart.setEnabled(false);
@@ -877,9 +884,18 @@ public class GUI extends JFrame implements MessageBox{
 		btnAbort = new JButton("Abort");
 		btnAbort.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				alert.notFall();
-				(worker = new mySwingWorker()).execute();
-				offAbortButton();
+				abortCounter+=1;
+				if(abortCounter==1) {
+					btnAbort.setBounds(247, 425, 190, 23);
+					btnAbort.setText("Are you really ok?");
+				}else if(abortCounter==2) {
+					abortCounter=0;
+					btnAbort.setBounds(297, 425, 89, 23);
+					btnAbort.setText("Abort");
+					alert.notFall();
+					(worker = new mySwingWorker()).execute();
+					offAbortButton();
+				}
 			}
 		});
 		
@@ -994,7 +1010,7 @@ public class GUI extends JFrame implements MessageBox{
 		lblRelatives = new JLabel("RELATIVES");
 		lblRelatives.setForeground(Color.BLUE);
 		lblRelatives.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 18));
-		lblRelatives.setBounds(77, 470, 89, 20);
+		lblRelatives.setBounds(77, 470, 100, 20);
 		contentPane.add(lblRelatives);
 		
 		lblSignUpRequest = new JLabel("Do you want to signup?");
