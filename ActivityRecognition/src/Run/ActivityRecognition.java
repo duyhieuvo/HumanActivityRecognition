@@ -11,9 +11,6 @@ import java.lang.Math;
 import Utilities.GenerateAlert;
 import Utilities.UserData;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
 
 
 public class ActivityRecognition {
@@ -27,7 +24,7 @@ public class ActivityRecognition {
 	}
 	
 	
-	private double thresholdBig() {//boolean sex, int age, int weight) { //retrieve obvious G threshold
+	private double thresholdBig() { //retrieve obvious G threshold
 		if (data.getSex()) {
 			if (data.getAge()>60) return 5;
 			else {
@@ -46,7 +43,7 @@ public class ActivityRecognition {
 		}
 	}
 	
-	private double thresholdSmall() {//boolean sex, int age, int weight) { //retrieve questionable G threshold
+	private double thresholdSmall() { //retrieve questionable G threshold
 		if (data.getSex()) {
 			if (data.getAge()>=60) return 2.3;
 			else {
@@ -76,19 +73,16 @@ public class ActivityRecognition {
 	public void runAnalysis(String datafile) throws FileNotFoundException {
 		fall=false;
 		double thresholdBig = thresholdBig();
-//		System.out.println(thresholdBig);
 		double thresholdSmall = thresholdSmall();
-//		System.out.println(thresholdSmall);
 		double[][] sampled = new double[1600][4];
 		System.out.println("Running analysis!");
 		timer = new Timer();
 		System.out.println(timer);
-		Scanner scanner = new Scanner(new File(datafile));//"D:/SCS/SisFall_dataset/SA01/D04_SA01_R01.txt"
+		Scanner scanner = new Scanner(new File(datafile));
 		timer.scheduleAtFixedRate(new TimerTask() { //data sampling thread
 				String line;
 				@Override
 				public void run() {
-//					System.out.println("Running");
 					// TODO Auto-generated method stub
 					line=scanner.nextLine();	//read a whole line						
 					line=line.replaceAll("\\s",""); //delete all spaces
@@ -108,6 +102,8 @@ public class ActivityRecognition {
 							+sampled[1599][1]*sampled[1599][1]
 							+sampled[1599][2]*sampled[1599][2]));
 					if (!scanner.hasNext()) { //if end file reached
+					//Here with the simulation, the recognition function simply stops
+					//With real reading from sensors, a notification will be displayed to user to warn about the empty data buffer.
 						System.out.println("End of file.");
 						scanner.close();
 						stop();
@@ -132,12 +128,12 @@ public class ActivityRecognition {
 									break;
 								}
 							}
+							//if a fall is detected, the analyzer is stopped
 							if (fell) {System.out.println("ALARM!!");fall=true;stop();break outerloop;/*ALARM*/}
 						}
 					}
 				}
 				if(fall) {
-					System.out.println("Te roi nha!");
 					Fall();
 					
 				}
@@ -153,7 +149,7 @@ public class ActivityRecognition {
 		return data;
 	}
 	public void Fall() {
-		alert.alarm(data);
+		alert.alarm(data);//notify the alert observer that a fall has happened.
 	}
 
 	

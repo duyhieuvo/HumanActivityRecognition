@@ -13,33 +13,27 @@ import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.properties.EncryptableProperties;
 import org.jasypt.util.password.StrongPasswordEncryptor;
 
-
+import GUI.GUI;
 import Run.ActivityRecognition;
 
 public class UserManagement {
-	private volatile static UserManagement uniqueInstance;
-	private UserManagement(ActivityRecognition analyser) {
+	
+	public UserManagement(ActivityRecognition analyser, GUI frame) {
 		this.analyser = analyser;
+		this.frame=frame;
 		passwordEncryptor = new StrongPasswordEncryptor();
 	}
-	public static UserManagement getInstance(ActivityRecognition analyser) {
-		if (uniqueInstance == null) {
-			synchronized (UserManagement.class) {
-				if (uniqueInstance == null) {
-					uniqueInstance = new UserManagement(analyser);
-				}
-			}
-		}
-			return uniqueInstance;
-		}
-	
+
 	private Connection conn;
 	private StrongPasswordEncryptor passwordEncryptor;
 	private ActivityRecognition analyser;
+	private GUI frame;
 
-	private static Properties getConnectionData() {
+	//Get data to connect to database.
+	//For testing, a database is run on localhost
+	private Properties getConnectionData() {
 		StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();     
-		encryptor.setPassword("Gatsby");
+		encryptor.setPassword("*****");
 		
 		Properties props = new EncryptableProperties(encryptor); 
 
@@ -48,18 +42,19 @@ public class UserManagement {
         try (FileInputStream in = new FileInputStream(fileName)) {
             props.load(in);
         } catch (IOException ex) {
-        	
+        	warnUser();
         }
 
         return props;
     }
 
+	//establish connection to database
 	private void establishConnection() {
 		Properties props = getConnectionData();
 		String url = props.getProperty("db.url");
         String user = props.getProperty("db.user");
         String passwd = props.getProperty("db.passwd");
-        try  //try block
+        try 
         {
         	conn = DriverManager.getConnection(url, user, passwd);
         	System.out.println("Connect to database successfully...");
@@ -67,16 +62,26 @@ public class UserManagement {
         }
         catch (SQLException se) 
 		{
-			//handle errors for JDBC
 			se.printStackTrace();
+			warnUser();
 		}
-		catch (Exception a) //catch block
+		catch (Exception a)
 		{
 			a.printStackTrace();
+			warnUser();
 		}
 	}
-	private void notifyObserver(UserData data) {
+	
+	
+	private void notifyRecognition(UserData data) {
 		analyser.getData(data);
+	}
+	
+	//Display warning to user if cannot connect to database
+	private void warnUser() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Cannot connect to database, please check your network connection or contact support team.");
+		frame.showWarnMes(builder);
 	}
 	
 	public boolean Login(String username,String pass) {
@@ -98,7 +103,7 @@ public class UserManagement {
 	    		    rs = preparedStmt.executeQuery();
 	    		    if(rs.next()) {
 	    		    	user = new UserData(rs.getString("name"),rs.getInt("age"),rs.getBoolean("sex"),rs.getString("address"),rs.getString("contact"),rs.getInt("height"),rs.getInt("weight"));
-	    		    	notifyObserver(user);
+	    		    	notifyRecognition(user);
 	    		    	status = true;
 	    		    }
 	    		}
@@ -107,12 +112,13 @@ public class UserManagement {
 	    }
 	    catch (SQLException se) 
 		{
-			//handle errors for JDBC
 			se.printStackTrace();
+			warnUser();
 		}
-		catch (Exception a) //catch block
+		catch (Exception a) 
 		{
 			a.printStackTrace();
+			warnUser();
 		}
 	    return status;
 	}
@@ -121,7 +127,6 @@ public class UserManagement {
 		try {
 			conn.close();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	
 	}
@@ -138,12 +143,13 @@ public class UserManagement {
 	    }
 		catch (SQLException se) 
 		{
-			//handle errors for JDBC
 			se.printStackTrace();
+			warnUser();
 		}
 		catch (Exception a) //catch block
 		{
 			a.printStackTrace();
+			warnUser();
 		}
 		return usernameExist;
 	}
@@ -172,18 +178,19 @@ public class UserManagement {
 	    	int rs = preparedStmt.executeUpdate();
 	    	if(rs!=0) {
 	    		user = new UserData(name,age,isFemale,address,contact,height,weight);
-	    		notifyObserver(user);
+	    		notifyRecognition(user);
 	    		status = true;
 	    	}
 		}
 		catch (SQLException se) 
 		{
-			//handle errors for JDBC
 			se.printStackTrace();
+			warnUser();
 		}
-		catch (Exception a) //catch block
+		catch (Exception a)
 		{
 			a.printStackTrace();
+			warnUser();
 		}
 		}
 		return status;
@@ -191,7 +198,6 @@ public class UserManagement {
 	//User needs to re-enter password as verification for updating the data
 	public boolean updateData(String username, String password, String name, int age, boolean isFemale, String address, String contact, int height, int weight) {
 		boolean status = false;
-		//establishConnection();
 		UserData user = null;
 		String query = "SELECT `password` FROM `userdata` WHERE `username`= ?";
 		 try {
@@ -212,19 +218,20 @@ public class UserManagement {
 		    		int rs1 = preparedStmt.executeUpdate();
 		    		if(rs1!=0) {
 		    			user = new UserData(name,age,isFemale,address,contact,height,weight);
-		    			notifyObserver(user);
+		    			notifyRecognition(user);
 		    			status = true;
 		    		}
 		    	}
 		 }
 		 catch (SQLException se) 
 		 {
-				//handle errors for JDBC
 			 	se.printStackTrace();
+			 	warnUser();
 		 }
-		 catch (Exception a) //catch block
+		 catch (Exception a) 
 		 {
 				a.printStackTrace();
+				warnUser();
 		 }
 		 return status;
 	}

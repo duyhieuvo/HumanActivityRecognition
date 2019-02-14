@@ -97,7 +97,7 @@ public class GUI extends JFrame implements MessageBox{
 	private void Initialize() {
 		alert = new GenerateAlert(this);
 		recognition = new ActivityRecognition(alert);
-		manager = UserManagement.getInstance(recognition);
+		manager = new UserManagement(recognition,this);
 		
 	}
 	
@@ -1327,12 +1327,13 @@ public class GUI extends JFrame implements MessageBox{
 		});
 	}
 	
+	//Start the recognition as a SwingWorker to avoid GUI freezing
 	private class mySwingWorker extends SwingWorker<Void,Integer>{
-
 		@Override
 		protected Void doInBackground() throws Exception {
 			// TODO Auto-generated method stub
 			System.out.println("Is started!");
+			//Simulation of reading sensor data by manually reading from data file.
 			recognition.runAnalysis("D:/DOCUMENT/Master/SCS/Project/data/F01_SA01_R01.txt");
 			return null;
 		}
