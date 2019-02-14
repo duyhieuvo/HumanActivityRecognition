@@ -91,6 +91,7 @@ public class GUI extends JFrame implements MessageBox{
 	
 	private mySwingWorker worker;
 	private boolean running =true;
+	public boolean errorDatabase=false;
 	
 	private int abortCounter = 0;
 	
@@ -150,9 +151,14 @@ public class GUI extends JFrame implements MessageBox{
     			login = true;
         	}
         	else {
-        		warnMessage.append("Username or password is not correct \n");
-        		showWarnMes(warnMessage);
-        		removeInput(patientData);
+        		if(errorDatabase) {
+        			errorDatabase=false;
+        		}
+        		else {
+	        		warnMessage.append("Username or password is not correct \n");
+	        		showWarnMes(warnMessage);
+	        		removeInput(patientData);
+        		}
         	}
 		}
 		else {
@@ -283,9 +289,15 @@ public class GUI extends JFrame implements MessageBox{
 		    			
 					}
 					else {
-						warnMessage.append("This username is existed \n");
-						showWarnMes(warnMessage);
-						removeInput(patientData);
+						if(errorDatabase) {
+		        			errorDatabase=false;
+		        		}
+		        		else {
+		        			warnMessage.append("This username is existed \n");
+							showWarnMes(warnMessage);
+							removeInput(patientData);
+		        		}
+						
 					}
 				}
 				else {
@@ -361,8 +373,13 @@ public class GUI extends JFrame implements MessageBox{
 	    		
 				}
 				else {
-					warnMessage.append("Password does not match");
-					showWarnMes(warnMessage); 
+					if(errorDatabase) {
+						errorDatabase=false;
+					}
+					else {
+						warnMessage.append("Password does not match");
+						showWarnMes(warnMessage); 
+					}
 				}
 			}
 			else {

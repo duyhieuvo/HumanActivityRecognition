@@ -79,6 +79,7 @@ public class UserManagement {
 	
 	//Display warning to user if cannot connect to database
 	private void warnUser() {
+		frame.errorDatabase=true;
 		StringBuilder builder = new StringBuilder();
 		builder.append("Cannot connect to database, please check your network connection or contact support team.");
 		frame.showWarnMes(builder);
